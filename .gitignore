@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /appsettings.json
 /appsettings.Development.json
+
+# file: ~/.gitignore_global
+.DS_Store
+.idea
