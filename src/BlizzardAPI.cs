@@ -240,51 +240,59 @@ namespace WowInfoBot
                 await Call(
                     $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/pvp-summary",
                     Namespace.Profile, typeof(PvpSummaryJson));
-
-            foreach (var item in summary.Brackets)
+            
+            if (summary.Brackets != null)
             {
-                var uri = item.Href.ToString().Split('?');
-                PvpBracketInfo bracket = await Call(uri[0], Namespace.Profile, typeof(PvpBracketInfo));
-                
-                var pvpBracket = bracket.Bracket.Type;
-                
-                switch (pvpBracket.ToLower())
+                foreach (var item in summary.Brackets)
                 {
-                    case "arena_2v2":
-                        pvpBracket = "2х2";
-                        break;
-                    case "arena_3v3":
-                        pvpBracket = "3х3";
-                        break;
-                    case "battlegrounds":
-                        pvpBracket = "RBG";
-                        break;
-                    case "shuffle":
-                        pvpBracket = $"{bracket.Specialization.Name} - солосуматоха";
-                        break;
-                    default:
-                        continue;
-                }
-
-                if (bracket.SeasonMatchStatistics.Played > 0)
-                {
-                    var winPercent = 0;
-                    if (bracket.SeasonMatchStatistics.Won > 0)
+                    var uri = item.Href.ToString().Split('?');
+                    PvpBracketInfo bracket = await Call(uri[0], Namespace.Profile, typeof(PvpBracketInfo));
+                
+                    var pvpBracket = bracket.Bracket.Type;
+                
+                    switch (pvpBracket.ToLower())
                     {
-                        if (bracket.Bracket.Type.ToLower().Equals("shuffle"))
-                        {
-                            winPercent = (int)(bracket.SeasonRoundStatistics.Won /
-                                (double)bracket.SeasonRoundStatistics.Played * 100);
-                        }
-                        else
-                        {
-                            winPercent = (int)(bracket.SeasonMatchStatistics.Won /
-                                (double)bracket.SeasonMatchStatistics.Played * 100);
-                        }
+                        case "arena_2v2":
+                            pvpBracket = "2х2";
+                            break;
+                        case "arena_3v3":
+                            pvpBracket = "3х3";
+                            break;
+                        case "battlegrounds":
+                            pvpBracket = "RBG";
+                            break;
+                        case "shuffle":
+                            pvpBracket = $"{bracket.Specialization.Name} - солосуматоха";
+                            break;
+                        default:
+                            continue;
                     }
 
-                    output += $"{pvpBracket} Рейтинг: {bracket.Rating} (Процент побед {winPercent}%)\n";
+                    if (bracket.SeasonMatchStatistics.Played > 0)
+                    {
+                        var winPercent = 0;
+                        if (bracket.SeasonMatchStatistics.Won > 0)
+                        {
+                            if (bracket.Bracket.Type.ToLower().Equals("shuffle"))
+                            {
+                                winPercent = (int)(bracket.SeasonRoundStatistics.Won /
+                                    (double)bracket.SeasonRoundStatistics.Played * 100);
+                            }
+                            else
+                            {
+                                winPercent = (int)(bracket.SeasonMatchStatistics.Won /
+                                    (double)bracket.SeasonMatchStatistics.Played * 100);
+                            }
+                        }
+
+                        output += $"{pvpBracket} Рейтинг: {bracket.Rating} (Процент побед {winPercent}%)\n";
+                    }
                 }
+ 
+            }
+            else
+            {
+                output += "None";
             }
 
             output += $"\n Уровень чести {summary.HonorLevel}. Количество убийств {summary.HonorableKills}";

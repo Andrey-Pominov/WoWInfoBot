@@ -11,7 +11,7 @@ public class ArmoryCommandContext : ICommandContext
     public readonly char Prefix;
     public readonly ILogger<Worker> Logger;
 
-    public ArmoryCommandContext(DiscordSocketClient client, SocketUserMessage message, BlizzardApi api, char prefix,
+    public ArmoryCommandContext(IDiscordClient client, SocketUserMessage message, BlizzardApi api, char prefix,
         ILogger<Worker> logger)
     {
         Client = client;

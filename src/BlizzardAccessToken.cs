@@ -17,15 +17,12 @@ public class BlizzardAccessToken
     [JsonPropertyName("expires_in")]
     public int ExpiresIn 
     {
-        get
-        {
-            return _expiresIn;
-        }
+        get => _expiresIn;
         private set
         {
             _expiresIn = value;
-            var exptime = new TimeSpan(0, 0, value);
-            ExpireDate = DateTime.Now.Add(exptime);
+            var expTime = new TimeSpan(0, 0, value);
+            ExpireDate = DateTime.Now.Add(expTime);
         }
     }
     public DateTime ExpireDate { get; private set; }
