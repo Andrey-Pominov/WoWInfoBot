@@ -118,6 +118,7 @@ namespace WowInfoBot
             return info;
         }
 
+        //TODO: need get all realms one times
         private async Task<string> GetRealmSlug(string characterRealm)
         {
             try
@@ -194,13 +195,13 @@ namespace WowInfoBot
 
                             break;
 
-                        case (long)Id.AdditionShadowlands:
-                            foreach (var raid in expansion.Instances)
-                            {
-                                raids.Add(raid);
-                            }
-
-                            break;
+                        // if need progress on Shadowlands 9.0+
+                        // case (long)Id.AdditionShadowlands:
+                        //     foreach (var raid in expansion.Instances)
+                        //     {
+                        //         raids.Add(raid);
+                        //     }
+                        // break;
                     }
                 }
             }

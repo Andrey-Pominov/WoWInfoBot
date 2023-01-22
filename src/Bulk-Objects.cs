@@ -562,15 +562,6 @@ namespace WowInfoBot
     public  class RealmsJson
     {
         
-        [JsonPropertyName("page")]
-        public long Page { get; set; }
-
-        [JsonPropertyName("pageSize")]
-        public long PageSize { get; set; }
-
-        [JsonPropertyName("maxPageSize")]
-        public long MaxPageSize { get; set; }
-
         [JsonPropertyName("pageCount")]
         public long PageCount { get; set; }
 
