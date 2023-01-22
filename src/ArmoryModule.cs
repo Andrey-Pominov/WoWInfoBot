@@ -57,7 +57,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
     {
         try
         {
-            Context.Logger.LogInformation($"Запрос от пользователя {Context.Message.Author}");
+            Context.Logger.LogInformation($"Request from user {Context.Message.Author}");
 
             var character = identity.ToLower().Split(new[] { '-' }, 2);
             
@@ -110,12 +110,12 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
     {
         try
         {
-            Context.Logger.LogInformation($"Запрос от пользователя {Context.Message.Author}");
+            Context.Logger.LogInformation($"Request from user {Context.Message.Author}");
             var token = await Context.Api.WoWTokenLookup();
             var messageOnDiscord = new EmbedBuilder();
-            messageOnDiscord.WithTitle("WoW Токен");
+            messageOnDiscord.WithTitle("WoW Token");
             messageOnDiscord.WithDescription(
-                $"• Стоимость: {token.Price}\n• Когда последний раз обновляли: {token.LastUpdated}");
+                $"• Price: {token.Price}\n LastUpdated: {token.LastUpdated}");
             messageOnDiscord.WithFooter($"{Context.Prefix}armory help");
             messageOnDiscord.WithThumbnailUrl(Globals.WowTokenIconUrl);
             await Context.Message.Channel.SendMessageAsync("", false, messageOnDiscord.Build());
@@ -131,11 +131,11 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
     {
         try
         {
-            Context.Logger.LogInformation($"Запрос от пользователя {Context.Message.Author}");
+            Context.Logger.LogInformation($"Request from user {Context.Message.Author}");
             var messageOnDiscord = new EmbedBuilder();
             messageOnDiscord.WithTitle("ArmoryBot Help");
             messageOnDiscord.WithDescription(
-                $"Для просмотра пвп или пве статистики: `{Context.Prefix}armory pve/pvp CharacterName-Realm`\n• Чтобы узнать сколько стоит токен: `{Context.Prefix}armory token");
+                $"To view pvp or pve stats: `{Context.Prefix}armory pve/pvp CharacterName-Realm`\n• To find out how much a token is worth: `{Context.Prefix}armory token");
             messageOnDiscord.WithFooter($"Info");
             messageOnDiscord.WithThumbnailUrl(Globals.TomeIconUrl);
             await Context.Message.Channel.SendMessageAsync("", false, messageOnDiscord.Build());
@@ -154,7 +154,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
             Context.Logger.LogWarning($"{Context.Message} от {Context.Message.Author}: {error}");
             var messageOnDiscord = new EmbedBuilder();
             messageOnDiscord.WithDescription(
-                $"**Ошибка** команда была введена не верно `{Context.Message}`\nПожалуйста, проверьте правильность написания и повторите попытку..");
+                $"**Error** the command was entered incorrectly `{Context.Message}`\nPlease check your spelling and try again..");
             messageOnDiscord.WithFooter($"{Context.Prefix}armory help");
             messageOnDiscord.WithThumbnailUrl(Globals.QuestionMarkIconUrl);
             await Context.Message.Channel.SendMessageAsync("", false, messageOnDiscord.Build());

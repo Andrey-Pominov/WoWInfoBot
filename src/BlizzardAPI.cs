@@ -327,7 +327,7 @@ namespace WowInfoBot
                             }
                         }
 
-                        output += $"{pvpBracket} Рейтинг: {bracket.Rating} (Процент побед {winPercent}%)\n";
+                        output += $"{pvpBracket} Rating: {bracket.Rating}, Win {winPercent}%)\n";
                     }
                 }
             }
@@ -336,7 +336,7 @@ namespace WowInfoBot
                 output += "None";
             }
 
-            output += $"\n Уровень чести {summary.HonorLevel}. Количество убийств {summary.HonorableKills}";
+            output += $"\n Honor Level {summary.HonorLevel}. Honorable Kills {summary.HonorableKills}";
             return output;
         }
 
@@ -346,7 +346,7 @@ namespace WowInfoBot
                 await Call(
                     $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/statistics",
                     Namespace.Profile, typeof(CharacterStatsJson));
-            return $" Здоровье: {stats.Health}\n Универсальность: {Math.Round(stats.VersatilityDamageDoneBonus, 2)}%";
+            return $" Health: {stats.Health}\n Versatility: {Math.Round(stats.VersatilityDamageDoneBonus, 2)}%";
         }
 
         private async Task GetGameData()
