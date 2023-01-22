@@ -35,6 +35,7 @@ namespace WowInfoBot
             _logger.LogWarning("Waiting for network connection...");
             using var ping = new Ping();
             string[] urls = { $"{_config.Region}.battle.net", "discord.com", "google.com" };
+            
             while (true)
             {
                 foreach (var url in urls)

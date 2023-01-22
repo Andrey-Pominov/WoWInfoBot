@@ -6,9 +6,9 @@ public class ArmoryBotConfig // настройки с appsetting.json
     public char CmdPrefix { get; set; }
     public string ClientId { get; set; }
     public string ClientSecret { get; set; }
-    private string _locale;
     
-    //TODO: вынести region в appsettings
+    private string _locale;
+    public string Timezone { get; set; }
     public string Locale
     {
         get => _locale;

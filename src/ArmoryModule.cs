@@ -10,9 +10,12 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
     [Command]
     public async Task HandleCmd(params string[] args)
     {
-        for (int i = 0; i < args.Length; i++)
+
+        var identity = "";
+
+        for (int i = 1; i < args.Length; i++)
         {
-            args[i] = args[i].Trim().ToLower();
+            identity += args[i];
         }
 
         if (args.Length < 1)
@@ -39,11 +42,11 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
 
             if (args[0] == "pve")
             {
-                await CommandResponseArmory(args[1], LookupType.Pve);
+                await CommandResponseArmory(identity, LookupType.Pve);
             }
             else if (args[0] == "pvp")
             {
-                await CommandResponseArmory(args[1], LookupType.Pvp);
+                await CommandResponseArmory(identity, LookupType.Pvp);
             }
         }
         else await SendErrorResponse("неверная команда!");
@@ -56,7 +59,8 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
         {
             Context.Logger.LogInformation($"Запрос от пользователя {Context.Message.Author}");
 
-            var character = identity.Split(new[] { '-' }, 2);
+            var character = identity.ToLower().Split(new[] { '-' }, 2);
+            
             var info = await Context.Api.ArmoryLookup(character[0], character[1], type);
 
             var messageOnDiscord = new EmbedBuilder();
@@ -160,4 +164,5 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
             Context.Logger.LogError(ex.ToString());
         }
     }
+    
 }
