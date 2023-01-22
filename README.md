@@ -14,7 +14,7 @@
 
  ## Discord Usage:
 ```bash
-!armory pve/pvp character-realm    ## character-realmslug  --> !armory pvp/pve ассонанс-blackscar
+!armory pve/pvp character-realm    ## character-realms or realmsSlug  --> !armory pve  Naowhlul-Tarren-mill or !armory pvp  Whaazzform-Tarren Mill
 !armory token    ## WoW Token
 !armory help    ## Help Command
 ```
