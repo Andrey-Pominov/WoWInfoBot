@@ -3,13 +3,13 @@ namespace WowInfoBot
  
     public class ArmoryData 
     {
-        public CharacterInfo CharInfo;   // информация персонажа
-        public string AvatarUrl;         // ссылка на картинку песонажа
-        public RaidData RaidInfo;        // информация о рейде    
-        public string MythicPlus;        // информация о ключах
-        public string Achievements;      // достижения
-        public string PvpRating;         // рейтинг арены
-        public string PvpStats;          //статистика арены
+        public CharacterInfo CharInfo;   
+        public string AvatarUrl;         
+        public RaidData RaidInfo;           
+        public string MythicPlus;        
+        public string Achievements;      
+        public string PvpRating;         
+        public string PvpStats;          
     }
 
 }

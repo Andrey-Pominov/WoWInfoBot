@@ -36,7 +36,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
         {
             if (args.Length < 2)
             {
-                await SendErrorResponse("Было введено не верно имя или сервер персонажа!");
+                await SendErrorResponse("The name or server of the character was entered incorrectly!");
                 return;
             }
 
@@ -49,10 +49,10 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
                 await CommandResponseArmory(identity, LookupType.Pvp);
             }
         }
-        else await SendErrorResponse("неверная команда!");
+        else await SendErrorResponse("wrong command!");
     }
 
-    // ответ от команды  !armory pvp/pve nickname-realmslug  --> !armory pvp/pve ассонанс-blackscar
+    // !armory pvp/pve nickname-realm  --> !armory pvp/pve ассонанс-Черный Шрам
     private async Task CommandResponseArmory(string identity, LookupType type)
     {
         try
@@ -105,7 +105,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
         }
     }
 
-    // ответ от команды  !armory token
+    //  !armory token
     private async Task CommandResponseToken()
     {
         try
@@ -126,7 +126,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
         }
     }
 
-    // ответ от команды !armory help
+    //!armory help
     private async Task CommandResponseHelp()
     {
         try
@@ -146,7 +146,7 @@ public class ArmoryModule : ModuleBase<ArmoryCommandContext>
         }
     }
 
-    // Ответ с ошибкой 
+ 
     private async Task SendErrorResponse(string error)
     {
         try

@@ -23,7 +23,7 @@ namespace WowInfoBot
             _blizzApi = new BlizzardApi(logger, config);
         }
 
-        public async Task DiscordStartupAsync() // Discord bot подключение
+        public async Task DiscordStartupAsync() // Discord bot startup
         {
             _client = new DiscordSocketClient();
             _commands = new CommandService();

@@ -2,7 +2,7 @@ namespace WowInfoBot;
 
 public class AchievementsList
 {
-    private readonly Dictionary<int, AchievementItem> _listAchievementItems; // список достижений 
+    private readonly Dictionary<int, AchievementItem> _listAchievementItems; 
     public AchievementsList()
     {
         _listAchievementItems = new Dictionary<int, AchievementItem>();

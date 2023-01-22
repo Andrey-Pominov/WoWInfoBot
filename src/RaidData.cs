@@ -2,8 +2,8 @@ namespace WowInfoBot;
 
 public class RaidData 
 {
-    public List<Raid> Raids { get; private set; }   // список всех рейдов
-    private readonly string _locale;                // локализация( устанавливается в appsettings.json)
+    public List<Raid> Raids { get; private set; }   
+    private readonly string _locale;                
     public RaidData(string locale)
     {
         Raids = new List<Raid>();

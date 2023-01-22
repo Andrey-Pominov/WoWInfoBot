@@ -2,9 +2,9 @@ namespace WowInfoBot;
 
 public class Raid 
 {
-    public string Name { get; private set; } // название рейда 
-    private Instance _raidInfo; // общие данные по рейду(сложность, название, кол-во убитых боссов и т.д.)
-    private string _locale; // локализация( устанавливается в appsettings.json)
+    public string Name { get; private set; } 
+    private Instance _raidInfo; 
+    private string _locale;
     public Raid(Instance raidInfo, string locale)
     {
         Name = raidInfo.InstanceInstance.Name;

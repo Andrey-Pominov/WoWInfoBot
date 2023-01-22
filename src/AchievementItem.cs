@@ -1,10 +1,11 @@
 namespace WowInfoBot;
 
-public class AchievementItem 
+public class AchievementItem
 {
-    public int Group { get; private set; }  // группа достижений одной значимости(например одного сезона)
-    public int Value { get; private set; }  // значение достижения, чем выше значение, тем лучше достижение
-    public string Name { get; private set; } // название достижения 
+    public int Group { get; private set; }
+    public int Value { get; private set; }
+    public string Name { get; private set; }
+
     public AchievementItem(int group, int value, string name = null)
     {
         Group = group;

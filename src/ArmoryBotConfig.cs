@@ -1,6 +1,6 @@
 namespace WowInfoBot;
 
-public class ArmoryBotConfig // настройки с appsetting.json
+public class ArmoryBotConfig //  appsetting.json
 {
     public string DiscordToken { get; set; }
     public char CmdPrefix { get; set; }

@@ -2,8 +2,8 @@ namespace WowInfoBot;
 
 public class MythicPlusData
 {
-    public long Rating { get; private set; }  // рейтинг ключей
-    public int HighestRun { get; private set; } // самый высокий пройденный ключ
+    public long Rating { get; private set; } 
+    public int HighestRun { get; private set; } 
     public MythicPlusData()
     {
         Rating = 0;
