@@ -42,9 +42,8 @@ namespace WowInfoBot
         private async Task DiscordHandleCommandAsync(SocketMessage messageParam)
         {
             if (messageParam is null) return;
-            if (messageParam is not SocketUserMessage message) return;
-            if (message.Source is not MessageSource.User) return;
-            
+            if (messageParam is not SocketUserMessage { Source: MessageSource.User } message) return;
+
             var argPos = 0;
             
             if (!message.HasCharPrefix(_config.CmdPrefix, ref argPos)) return;
@@ -56,7 +55,7 @@ namespace WowInfoBot
 
         private async Task DiscordLog(LogMessage message)
         {
-            string messageOut = $"Discord: {message.Message}{message.Exception}";
+            var messageOut = $"Discord: {message.Message}{message.Exception}";
             switch (message.Severity)
             {
                 case LogSeverity.Critical:

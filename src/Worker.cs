@@ -18,35 +18,47 @@ namespace WowInfoBot
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            CheckForInternet(); 
-            void CheckForInternet()
-            {
-                _logger.LogWarning("Waiting for network connection...");
-                using var ping = new Ping();
-                string[] urls = { $"{_config.Region}.battle.net", "discord.com", "google.com" }; 
-                while (true)
-                {
-                    foreach (var url in urls)
-                    {
-                        try
-                        {
-                            stoppingToken.ThrowIfCancellationRequested();
-                            var reply = ping.Send(url); 
-                            if (reply.Status is IPStatus.Success) return; 
-                        }
-                        catch (OperationCanceledException) { throw; }
-                        catch
-                        {
-                            // ignored
-                        }
-                        finally { Thread.Sleep(250); } 
-                    }
-                }
-            }
+            CheckForInternet(stoppingToken);
+            
+            // void CheckForInternet { ... }
+            
             _logger.LogInformation("Starting up WowInfoBot...");
             _armoryBot = new ArmoryBot(_logger, _config);
             await _armoryBot.DiscordStartupAsync();
-            await Task.Delay(-1, stoppingToken); 
+            await Task.Delay(-1, stoppingToken);
+        }
+
+        
+        // pref use local function on ExecuteAsync
+        private void CheckForInternet(CancellationToken stoppingToken)
+        {
+            _logger.LogWarning("Waiting for network connection...");
+            using var ping = new Ping();
+            string[] urls = { $"{_config.Region}.battle.net", "discord.com", "google.com" };
+            while (true)
+            {
+                foreach (var url in urls)
+                {
+                    try
+                    {
+                        stoppingToken.ThrowIfCancellationRequested();
+                        var reply = ping.Send(url);
+                        if (reply.Status is IPStatus.Success) return;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                    finally
+                    {
+                        Thread.Sleep(250);
+                    }
+                }
+            }
         }
     }
 }

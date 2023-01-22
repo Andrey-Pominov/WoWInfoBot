@@ -20,24 +20,20 @@ namespace WowInfoBot
         private BlizzardAccessToken _token;
         private Timer _tokenExpTimer;
 
-        private long _mplusSeasonId = -1;
+        private long _mPlusSeasonId = -1;
 
         public BlizzardApi(ILogger<Worker> logger, ArmoryBotConfig config)
         {
             _logger = logger;
             _config = config;
             _services = new ServiceCollection();
-            _services.AddHttpClient("default", client =>
-                {
-                    client.Timeout = TimeSpan.FromSeconds(15);
-                    client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
-                })
-                .AddPolicyHandler(HttpPolicyExtensions
-                    .HandleTransientHttpError()
+
+            _services.AddHttpClient("default")
+                .AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError()
                     .OrResult(response => (int)response.StatusCode != 200)
-                    .WaitAndRetryAsync(3, delay => TimeSpan.FromMilliseconds(250)))
-                .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler()
-                    { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate });
+                    .WaitAndRetryAsync(3, delay => TimeSpan.FromMilliseconds(250)));
+
+            
             _clientFactory = _services.BuildServiceProvider().GetService<IHttpClientFactory>();
             RequestToken();
         }
@@ -88,14 +84,16 @@ namespace WowInfoBot
             try
             {
                 var info = new WoWToken();
-                WoWTokenJson wowtoken =
+                WoWTokenJson wowToken =
                     await Call($"https://{_config.Region}.api.blizzard.com/data/wow/token/index",
                         Namespace.Dynamic, typeof(WoWTokenJson));
-                info.Price = (wowtoken.Price / 10000).ToString();
+                info.Price = (wowToken.Price / 10000).ToString();
+                
                 var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                var lastupdate = origin.AddMilliseconds(wowtoken.LastUpdatedTimestamp).ToUniversalTime();
-                var span = DateTime.Now.ToUniversalTime() - lastupdate;
-                info.LastUpdated = $"{lastupdate} ({span.Minutes} minutes ago)";
+                var lastUpdate = origin.AddMilliseconds(wowToken.LastUpdatedTimestamp).ToUniversalTime();
+                var span = DateTime.Now.ToUniversalTime() - lastUpdate;
+                
+                info.LastUpdated = $"{lastUpdate} ({span.Minutes} minutes ago)";
                 return info;
             }
             catch
@@ -114,10 +112,10 @@ namespace WowInfoBot
                     Namespace.Profile, typeof(CharacterSummaryJson));
 
 
-            info.Name =
-                $"{summary.Name} {summary.Level} {summary.Race.Name} {summary.ActiveSpec.Name} {summary.CharacterClass.Name}";
+            info.Name = $"{summary.Name} {summary.Level} {summary.Race.Name} {summary.ActiveSpec.Name} {summary.CharacterClass.Name}";
             info.ItemLevel = $"\n**Item Level: {summary.EquippedItemLevel}**";
             info.ArmoryUrl = $"https://worldofwarcraft.com/character/{_config.Region}/{realm}/{character}";
+            
             return info;
         }
 
@@ -126,9 +124,13 @@ namespace WowInfoBot
             CharacterMediaJson characterMedia = await Call(
                 $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/character-media",
                 Namespace.Profile, typeof(CharacterMediaJson));
+            
             foreach (var asset in characterMedia.Assets)
             {
-                if (asset.Key.ToLower() == "avatar") return asset.Value.ToString();
+                if (asset.Key.ToLower() == "avatar")
+                {
+                    return asset.Value.ToString();
+                }
             }
 
             throw new NullReferenceException("Avatar value is null.");
@@ -143,6 +145,7 @@ namespace WowInfoBot
                 Namespace.Profile, typeof(RaidJson));
 
             if (raidInfo.ExpansionsExpansions != null)
+            {
                 foreach (var expansion in raidInfo.ExpansionsExpansions)
                 {
                     switch (expansion.ExpansionExpansion.Id)
@@ -164,6 +167,7 @@ namespace WowInfoBot
                             break;
                     }
                 }
+            }
 
             return raids;
         }
@@ -180,7 +184,7 @@ namespace WowInfoBot
             {
                 foreach (var season in summary.Seasons)
                 {
-                    if (season.Id == _mplusSeasonId)
+                    if (season.Id == _mPlusSeasonId)
                     {
                         hasCurrentSeason = true;
                         break;
@@ -192,11 +196,11 @@ namespace WowInfoBot
             {
                 var data = new MythicPlusData();
                 
-                MPlusSeasonInfoJson mplusseasoninfo = await Call(
-                        $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/mythic-keystone-profile/season/{_mplusSeasonId}",
+                MPlusSeasonInfoJson mPlusSeasonInfo = await Call(
+                        $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/mythic-keystone-profile/season/{_mPlusSeasonId}",
                         Namespace.Profile, typeof(MPlusSeasonInfoJson));
                 
-                data.Parse(summary, mplusseasoninfo);
+                data.Parse(summary, mPlusSeasonInfo);
                 return data.ToString();
             }
 
@@ -236,6 +240,7 @@ namespace WowInfoBot
         private async Task<string> GetPvp(string character, string realm)
         {
             var output = "";
+            
             PvpSummaryJson summary =
                 await Call(
                     $"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}/pvp-summary",
@@ -262,7 +267,7 @@ namespace WowInfoBot
                             pvpBracket = "RBG";
                             break;
                         case "shuffle":
-                            pvpBracket = $"{bracket.Specialization.Name} - солосуматоха";
+                            pvpBracket = $"{bracket.Specialization.Name} - solo shuffle";
                             break;
                         default:
                             continue;
@@ -312,7 +317,7 @@ namespace WowInfoBot
         {
             MPlusSeasonIndexJson jsonSeason = await Call($"https://{_config.Region}.api.blizzard.com/data/wow/mythic-keystone/season/index",
                     Namespace.Dynamic, typeof(MPlusSeasonIndexJson));
-            _mplusSeasonId = jsonSeason.CurrentSeason.Id;
+            _mPlusSeasonId = jsonSeason.CurrentSeason.Id;
         }
 
         private async Task RequestToken()
@@ -320,34 +325,34 @@ namespace WowInfoBot
             try
             {
                 _logger.LogInformation("Requesting new BlizzAPI Token...");
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"),
-                           $"https://{_config.Region}.battle.net/oauth/token"))
-                {
-                    var base64Authorization =
-                        Convert.ToBase64String(
-                            Encoding.ASCII.GetBytes($"{_config.ClientId}:{_config.ClientSecret}"));
-                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {base64Authorization}");
-                    request.Content = new StringContent("grant_type=client_credentials");
-                    request.Content.Headers.ContentType =
-                        MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+                using var request = new HttpRequestMessage(new HttpMethod("POST"), $"https://{_config.Region}.battle.net/oauth/token");
+                
+                var base64Authorization = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_config.ClientId}:{_config.ClientSecret}"));
+                
+                request.Headers.TryAddWithoutValidation("Authorization", $"Basic {base64Authorization}");
+                request.Content = new StringContent("grant_type=client_credentials");
+                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
 
-                    var client = _clientFactory.CreateClient("default");
-                    using (var response = await client.SendAsync(request))
-                    await using (var content = await response.Content.ReadAsStreamAsync())
-                    {
-                        _token = await JsonSerializer.DeserializeAsync<BlizzardAccessToken>(content,
-                            new JsonSerializerOptions() { IgnoreNullValues = true });
-                        if (_token.AccessToken is null) throw new Exception($"Error obtaining token:\n{response}");
-                        TokenExpTimerStart();
-                        _logger.LogInformation(
-                            $"BlizzAPI Token obtained! Valid until {_token.ExpireDate} (Auto-Renewing).");
-                        await GetGameData();
-                    }
+                var client = _clientFactory.CreateClient("default");
+                using var response = await client.SendAsync(request);
+                await using var content = await response.Content.ReadAsStreamAsync();
+                
+                
+                _token = await JsonSerializer.DeserializeAsync<BlizzardAccessToken>(content, new JsonSerializerOptions { IgnoreNullValues = true });
+
+                if (_token.AccessToken is null)
+                {
+                    throw new Exception($"Error obtaining token:\n{response}");
                 }
+                
+                TokenExpTimerStart();
+                _logger.LogInformation($"BlizzAPI Token obtained! Valid until {_token.ExpireDate} (Auto-Renewing).");
+                
+                await GetGameData();
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                _logger.LogError(ex.ToString());
+                _logger.LogError(exception.ToString());
             }
         }
 
@@ -356,33 +361,29 @@ namespace WowInfoBot
             try
             {
                 _logger.LogWarning("Checking BlizzAPI Token...");
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"),
-                           $"https://{_config.Region}.battle.net/oauth/check_token"))
-                {
-                    var contentList = new List<string>();
-                    contentList.Add($"token={_token.AccessToken}");
-                    request.Content = new StringContent(string.Join("&", contentList));
-                    request.Content.Headers.ContentType =
-                        MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+                using var request = new HttpRequestMessage(new HttpMethod("POST"), $"https://{_config.Region}.battle.net/oauth/check_token");
+                
+                var contentList = new List<string>();
+                
+                contentList.Add($"token={_token.AccessToken}");
+                request.Content = new StringContent(string.Join("&", contentList));
+                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
 
-                    var client = _clientFactory.CreateClient("default");
-                    using (var response = await client.SendAsync(request))
-                    await using (var content = await response.Content.ReadAsStreamAsync())
-                    {
-                        var json = await JsonSerializer.DeserializeAsync<CheckTokenJson>(content,
-                            new JsonSerializerOptions { IgnoreNullValues = true });
-                        if (json.ClientId is null)
-                            throw new Exception(
-                                $"BlizzAPI Token is no longer valid!\n{response}");
-                        else
-                        {
-                            _logger.LogInformation(
-                                $"BlizzAPI Token is valid! Valid until {_token.ExpireDate} (Auto-Renewing).");
-                            if (_mplusSeasonId == -1)
-                                await GetGameData();
-                        }
-                    }
+                var client = _clientFactory.CreateClient("default");
+                using var response = await client.SendAsync(request);
+                await using var content = await response.Content.ReadAsStreamAsync();
+                
+                var json = await JsonSerializer.DeserializeAsync<CheckTokenJson>(content, new JsonSerializerOptions { IgnoreNullValues = true });
+                
+                if (json.ClientId is null)
+                {
+                    throw new Exception($"BlizzAPI Token is no longer valid!\n{response}");        
                 }
+
+                _logger.LogInformation($"BlizzAPI Token is valid! Valid until {_token.ExpireDate} (Auto-Renewing).");
+                
+                if (_mPlusSeasonId == -1)
+                    await GetGameData();
             }
             catch (Exception exception)
             {
@@ -391,8 +392,7 @@ namespace WowInfoBot
             }
         }
 
-        private async Task<dynamic> Call(string uri, Namespace space,
-                Type jsonType)
+        private async Task<dynamic> Call(string uri, Namespace space, Type jsonType)
         {
             using var request = new HttpRequestMessage(new HttpMethod("GET"), uri + $"?locale={_config.Locale}");
             
