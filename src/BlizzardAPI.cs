@@ -108,13 +108,10 @@ namespace WowInfoBot
         {
             var info = new CharacterInfo();
 
-            CharacterSummaryJson summary =
-                await Call($"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}",
-                    Namespace.Profile, typeof(CharacterSummaryJson));
+            CharacterSummaryJson summary = await Call($"https://{_config.Region}.api.blizzard.com/profile/wow/character/{realm}/{character}", Namespace.Profile, typeof(CharacterSummaryJson));
 
 
-            info.Name =
-                $"{summary.Name} {summary.Level} {summary.Race.Name} {summary.ActiveSpec.Name} {summary.CharacterClass.Name}";
+            info.Name = $"{summary.Name} {summary.Level} {summary.Race.Name} {summary.ActiveSpec.Name} {summary.CharacterClass.Name}";
             info.ItemLevel = $"\n**Item Level: {summary.EquippedItemLevel}**";
             info.ArmoryUrl = $"https://worldofwarcraft.com/character/{_config.Region}/{realm}/{character}";
 
@@ -128,30 +125,26 @@ namespace WowInfoBot
                 var realms = new RealmsWow();
 
                 var page = 1;
-                
+
                 do
                 {
-                    RealmsJson summary =
-                        await Call($"https://{_config.Region}.api.blizzard.com/data/wow/search/realm",
-                            Namespace.Dynamic, typeof(RealmsJson), page);
+                    RealmsJson summary = await Call($"https://{_config.Region}.api.blizzard.com/data/wow/search/realm", Namespace.Dynamic, typeof(RealmsJson), page);
 
                     realms.Results = summary.Results;
                     realms.PageCount = summary.PageCount;
 
                     foreach (var realm in realms.Results)
                     {
-                        var tempRealm = realm.Data;
-                        
-                        if (characterRealm.Equals(tempRealm.Name.EnGb.ToLower().Replace(" ", "")) || 
-                            characterRealm.Equals(tempRealm.Name.RuRu.ToLower().Replace(" ", "")) || 
-                            characterRealm.Equals(tempRealm.Slug.ToLower().Replace(" ", "")))
+                        var tempRealm = realm.Data.Name;
+
+                        if (characterRealm.Equals(tempRealm.EnGb.ToLower().Replace(" ", "")) ||
+                            characterRealm.Equals(tempRealm.RuRu.ToLower().Replace(" ", "")))
                         {
                             return realm.Data.Slug;
                         }
                     }
-                    
+
                     page++;
-                    
                 } while (page <= realms.PageCount);
 
                 return characterRealm;
@@ -440,7 +433,7 @@ namespace WowInfoBot
             }
         }
 
-        private async Task<dynamic> Call(string uri, Namespace space, Type jsonType, int? api = 0)
+        private async Task<dynamic> Call(string uri, Namespace space, Type jsonType, int api = 0)
         {
             if (api == 0)
             {
